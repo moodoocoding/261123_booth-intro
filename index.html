@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 체험 부스 · 우리가 만든 게임 소개</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ===========================================
+   색과 글꼴 (여기만 바꾸면 전체 분위기가 바뀌어요)
+   =========================================== */
+:root{
+  --stage-bg:#efece3;       /* 화면 비율이 안 맞을 때 바깥 여백 색 */
+  --slide-bg:#faf8f2;       /* 슬라이드 바탕 (크림색) */
+  --ink:#1b2444;            /* 글자, 남색 패널 */
+  --sub:#4a5270;
+  --line:#dedad0;
+  --blue:#3550e0;           /* 강조 버튼 */
+  --lime:#d9f65c;           /* 꼬리표 */
+  --band:#f0eee5;           /* 아래 띠 */
+  --font:'Gothic A1','Malgun Gothic',sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --auto-ms:10000;          /* 자동으로 넘어가는 시간 (10초) */
+}
+*{margin:0;padding:0;box-sizing:border-box}
+
+/* ===========================================
+   FIXED 16:9 STAGE: MANDATORY BASE STYLES
+   Slides are authored at 1920×1080 and scaled as a whole.
+   =========================================== */
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+.deck-viewport {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+.deck-stage {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    transform-origin: 0 0;
+    background: var(--slide-bg, #fff);
+}
+.slide {
+    position: absolute;
+    inset: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    display: block;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    background: var(--slide-bg, #fff);
+}
+.slide.active,
+.slide.visible {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 1;
+}
+img,
+video,
+canvas,
+svg {
+    max-width: 100%;
+    max-height: 100%;
+}
+.deck-controls {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+@media print {
+    html,
+    body {
+        width: 1920px;
+        height: auto;
+        overflow: visible;
+        background: #fff;
+    }
+    .deck-viewport {
+        position: static;
+        overflow: visible;
+        background: #fff;
+    }
+    .deck-stage {
+        position: static;
+        width: auto;
+        height: auto;
+        transform: none !important;
+        background: none;
+    }
+    .slide {
+        position: relative;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        width: 1920px;
+        height: 1080px;
+        break-after: page;
+        page-break-after: always;
+    }
+    .slide:last-child {
+        break-after: auto;
+        page-break-after: auto;
+    }
+    .deck-controls {
+        display: none !important;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.2s !important;
+    }
+}
+
+/* ===========================================
+   공통 틀: 위쪽 줄 (이름표 + QR 자리), 아래 띠 (진행 표시)
+   모든 슬라이드 위에 늘 떠 있어요
+   =========================================== */
+body{font-family:var(--font);color:var(--ink)}
+.slide{transition:opacity .5s ease}
+.chrome{position:absolute;inset:0;z-index:5;pointer-events:none}
+.brand{position:absolute;left:96px;top:56px;display:flex;align-items:center;gap:18px}
+.brand .mark{width:64px;height:64px;border-radius:20px;background:var(--blue);display:grid;place-items:center;font-size:34px;box-shadow:0 8px 0 rgba(53,80,224,.25)}
+.brand b{font-size:34px;font-weight:900;letter-spacing:-1px}
+.brand small{display:block;font-size:19px;font-weight:700;color:var(--sub);margin-top:2px}
+.topline{position:absolute;left:96px;right:330px;top:150px;height:2px;background:var(--line)}
+.counter{position:absolute;right:330px;top:72px;font-size:24px;font-weight:800;color:var(--sub);letter-spacing:1px}
+.counter b{color:var(--ink);font-size:34px;font-weight:900}
+
+/* ----- 오른쪽 위 QR 코드 자리 -----
+   같은 폴더에 qr.png 를 넣으면 자동으로 이 자리에 나와요. 없으면 빈 자리 표시가 보여요. */
+.qr{position:absolute;right:96px;top:36px;width:200px;height:200px;border-radius:26px;background:#fff;border:3px dashed #b9b4a4;display:grid;place-items:center;text-align:center;overflow:hidden;box-shadow:0 14px 30px rgba(27,36,68,.1)}
+.qr.has{border:3px solid var(--ink)}
+.qr img{width:100%;height:100%;object-fit:contain;padding:12px;display:none}
+.qr.has img{display:block}.qr.has span{display:none}
+.qr span{font-size:22px;font-weight:800;color:#a39e8e;line-height:1.4}
+.qr span i{display:block;font-style:normal;font-size:44px;margin-bottom:4px}
+
+.band{position:absolute;left:0;right:0;bottom:0;height:150px;background:var(--band);border-top:2px solid var(--line);display:flex;align-items:center;gap:40px;padding:0 96px}
+.band .next{flex:none;width:430px}
+.band .next small{display:block;font-size:20px;font-weight:700;color:var(--sub);margin-bottom:4px}
+.band .next b{font-size:32px;font-weight:900;white-space:nowrap}
+.dots{flex:1;display:flex;gap:10px;align-items:center}
+.dot{flex:1;height:12px;border-radius:99px;background:#dcd8cb;overflow:hidden;position:relative}
+.dot.done{background:var(--ink)}
+.dot i{position:absolute;inset:0;background:var(--blue);transform:scaleX(0);transform-origin:0 50%}
+.dot.cur i{animation:fill var(--auto-ms) linear forwards}
+.paused .dot.cur i{animation-play-state:paused}
+@keyframes fill{to{transform:scaleX(1)}}
+.band .hint{flex:none;font-size:19px;font-weight:700;color:#8b8779;text-align:right;line-height:1.5}
+
+/* ===========================================
+   슬라이드 본문: 왼쪽 큰 제목 + 오른쪽 남색 화면 패널
+   =========================================== */
+.left{position:absolute;left:96px;top:226px;width:800px}
+.tag{display:inline-flex;align-items:center;gap:10px;background:var(--lime);padding:10px 22px;border-radius:12px;font-size:27px;font-weight:900}
+.tag em{font-style:normal;opacity:.55}
+h1{font-size:104px;line-height:1.1;font-weight:900;letter-spacing:-4.5px;margin:22px 0 24px;white-space:pre-line}
+h1.long{font-size:92px}
+.desc{font-size:32px;line-height:1.5;font-weight:500;color:var(--sub);width:760px;word-break:keep-all}
+.pills{display:flex;gap:16px;margin-top:30px;flex-wrap:wrap}
+.pill{font-size:27px;font-weight:800;padding:18px 30px;border-radius:18px;border:2.5px solid #cfcabb;background:#fff}
+.pill.pri{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 8px 0 rgba(53,80,224,.25)}
+
+.panel{position:absolute;right:96px;top:238px;width:880px;height:640px;border-radius:38px;background:var(--ink);overflow:hidden}
+.panel::before,.panel::after{content:'';position:absolute;border-radius:50%;border:2px solid rgba(160,176,255,.5)}
+.panel::before{width:1300px;height:1300px;right:-760px;top:-420px}
+.panel::after{width:1500px;height:1500px;right:-900px;top:-470px;border-color:rgba(160,176,255,.3)}
+.panel .wave{position:absolute;left:-180px;bottom:-330px;width:620px;height:620px;border-radius:50%;background:var(--blue)}
+.ptag{position:absolute;left:54px;top:46px;background:var(--lime);color:var(--ink);padding:9px 20px;border-radius:10px;font-size:25px;font-weight:900;z-index:2}
+.purl{position:absolute;right:54px;top:54px;color:#fff;font-size:22px;font-weight:800;z-index:2;opacity:.9}
+.shot{position:absolute;left:54px;right:54px;top:118px;bottom:50px;border-radius:20px;background:#fff;padding:10px;box-shadow:0 12px 0 rgba(255,255,255,.18),0 30px 60px rgba(0,0,0,.4);z-index:2}
+.shot img{width:100%;height:100%;object-fit:cover;object-position:50% 0;border-radius:12px;display:block;background:#e9e6dc}
+
+/* ----- 첫 슬라이드 (전체 소개) ----- */
+.cover h1{font-size:130px;line-height:1.13;margin:26px 0 28px}
+.wall{position:absolute;left:54px;right:54px;top:118px;bottom:50px;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(3,1fr);gap:14px;z-index:2}
+.wall div{border-radius:16px;background:#fff;overflow:hidden;box-shadow:0 8px 20px rgba(0,0,0,.3)}
+.wall img{width:100%;height:100%;object-fit:cover;object-position:50% 0;display:block}
+.wall .more{background:var(--lime);display:grid;place-items:center;font-size:40px;font-weight:900;line-height:1.2;text-align:center}
+
+/* ===========================================
+   등장 효과: 슬라이드가 바뀔 때 차례로 올라와요
+   =========================================== */
+.rv{opacity:0;transform:translateY(34px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.slide.visible .rv{opacity:1;transform:none}
+.slide.visible .rv:nth-child(2){transition-delay:.08s}
+.slide.visible .rv:nth-child(3){transition-delay:.16s}
+.slide.visible .rv:nth-child(4){transition-delay:.24s}
+.panel.rv{transform:translateX(60px) scale(.97);transition-duration:.9s}
+.slide.visible .panel.rv{transition-delay:.12s}
+.shot,.wall{transform:translateY(40px);opacity:0;transition:opacity .8s var(--ease) .35s,transform .8s var(--ease) .35s}
+.slide.visible .shot,.slide.visible .wall{transform:none;opacity:1}
+</style>
+</head>
+<body>
+<div class="deck-viewport">
+  <main class="deck-stage" id="deckStage">
+    <!-- 슬라이드는 아래 스크립트의 GAMES 목록으로 만들어져요 -->
+    <div class="chrome" id="chrome">
+      <div class="brand"><div class="mark">🎮</div><div><b>AI 체험 부스</b><small>2026 충북 AI 페스티벌 · 초등학생이 만든 게임</small></div></div>
+      <div class="counter" id="counter"></div>
+      <div class="qr" id="qr"><img id="qrImg" alt="QR 코드"><span><i>▦</i>QR 코드 자리</span></div>
+      <div class="topline"></div>
+      <div class="band">
+        <div class="next"><small>다음 소개</small><b id="nextName"></b></div>
+        <div class="dots" id="dots"></div>
+        <div class="hint">← → 넘기기<br>스페이스 멈춤</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+/* ===========================================
+   소개할 게임 목록
+   한 줄을 더하면 슬라이드가 한 장 늘어나요.
+   shot: shots 폴더의 화면 사진 이름
+   title 안의 \n 은 줄바꿈이에요.
+   =========================================== */
+const GAMES = [
+  {shot:'spacing',subj:'국어',name:'띄어쓰기 1등은 누구?',title:'띄어쓰기,\n누가\n1등일까?',desc:'글자 사이를 눌러 알맞게 띄어 써요. 화면을 나눠 최대 4명이 동시에 겨뤄요.',players:'1~4명',rank:true},
+  {shot:'fight',subj:'수학',name:'수학격투',title:'구구단이\n필살기가\n된다.',desc:'곱셈 문제를 풀어 필살기를 날리는 격투 게임. 둘이서 화면을 나눠 대결할 수 있어요.',players:'1~2명',rank:true},
+  {shot:'gugudan',subj:'수학',name:'구구단 가디언즈',title:'구구단으로\n성을\n지켜라.',desc:'구구단을 맞혀 금화를 모으고, 탑을 세워 몰려오는 적을 막아요.',players:'1명',rank:true},
+  {shot:'space',subj:'과학',name:'우주정복자',title:'태양계\n여덟 행성을\n정복하라.',desc:'행성을 하나씩 찾아가 퀴즈를 풀어요. 모두 정복하면 우주정복자 임명장을 받아요.',players:'1명',rank:true},
+  {shot:'weather',subj:'과학',name:'꼬마 기상청장',title:'오늘 날씨는\n내가\n정한다.',desc:'해, 비, 눈, 바람을 직접 바꿔 보며 날씨가 어떻게 달라지는지 알아봐요.',players:'1명',rank:false},
+  {shot:'capital',subj:'사회',name:'나라 수도 맞추기',title:'사진을 보고\n수도를\n맞혀라.',desc:'세계 50개 나라의 사진과 국기를 보고 수도를 골라요. 힌트 없이 맞히면 점수가 두 배!',players:'1명',rank:true},
+  {shot:'quiz',subj:'퀴즈',name:'트리플 퀴즈 쇼',title:'상식, 연산,\n아재개그\n까지.',desc:'세 라운드로 이어지는 퀴즈 쇼. 둘이서 먼저 맞히기 대결도 할 수 있어요.',players:'1~2명',rank:true},
+  {shot:'runner',subj:'퀴즈',name:'퀴즈 & 점프 런너',title:'뛰고,\n풀고,\n부스트!',desc:'장애물은 점프로 넘고, 퀴즈를 맞히면 빨라져요. 최대 4명이 동시에 달려요.',players:'1~4명',rank:true},
+  {shot:'brain',subj:'두뇌',name:'브레인 대시',title:'딱 1분,\n두뇌를\n깨워라.',desc:'색깔 판별, 암산, 기억력 게임을 20초씩 이어서 해요. 내 두뇌 유형도 알려 줘요.',players:'1명',rank:true},
+  {shot:'block',subj:'두뇌',name:'블록 퍼즐 챔피언',title:'블록을 놓아\n줄을\n지워라.',desc:'8×8 판에 블록을 놓아 가로줄이나 세로줄을 꽉 채우면 지워져요.',players:'1명',rank:true},
+  {shot:'swing',subj:'액션',name:'휙휙! 로프 스윙',title:'휙휙\n날아서\n끝까지.',desc:'로프를 걸고 흔들흔들 날아서 다섯 스테이지를 건너가요.',players:'1명',rank:true},
+  {shot:'beat',subj:'액션',name:'비트스매시 클럽',title:'박자에\n맞춰\n딱!',desc:'음악에 맞춰 떨어지는 노트를 딱 맞는 순간에 눌러요.',players:'1명',rank:true},
+  {shot:'core',subj:'액션',name:'택티컬 코어 디펜스',title:'드론을 막고\n코어를\n지켜라.',desc:'몰려오는 드론을 물리치며 10 웨이브 동안 코어를 지키는 슈팅 게임.',players:'1명',rank:true}
+];
+const esc = s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ===========================================
+   슬라이드 만들기: 첫 장(전체 소개) + 게임마다 한 장
+   =========================================== */
+const stage = document.getElementById('deckStage'), chrome = document.getElementById('chrome');
+const cover = `<section class="slide cover">
+  <div class="left">
+    <span class="tag rv">초등학생이 AI와 함께 만들었어요</span>
+    <h1 class="rv">우리가 만든\n게임 ${GAMES.length}개.</h1>
+    <p class="desc rv">아이디어도, 규칙도 우리가 정했어요. 마음에 드는 게임을 골라 직접 해 보세요!</p>
+    <div class="pills rv"><span class="pill pri">지금 바로 체험하기 →</span><span class="pill">🏆 오늘의 랭킹 도전</span></div>
+  </div>
+  <div class="panel rv"><div class="wave"></div><span class="ptag">우리 반 게임 모음</span><span class="purl">국어 · 수학 · 과학 · 사회 · 두뇌 · 액션</span>
+    <div class="wall">${GAMES.slice(0,11).map(g=>`<div><img src="shots/${g.shot}.png" alt=""></div>`).join('')}<div class="more">+${GAMES.length-11}<br>더!</div></div>
+  </div>
+</section>`;
+const slidesHtml = GAMES.map((g,i)=>`<section class="slide">
+  <div class="left">
+    <span class="tag rv">${esc(g.subj)} <em>·</em> ${esc(g.name)}</span>
+    <h1 class="rv ${g.title.split('\n').some(l=>l.length>6)?'long':''}">${esc(g.title)}</h1>
+    <p class="desc rv">${esc(g.desc)}</p>
+    <div class="pills rv">${g.rank?'<span class="pill pri">🏆 오늘의 랭킹에 도전</span>':'<span class="pill pri">자유롭게 체험</span>'}<span class="pill">👤 ${esc(g.players)}</span></div>
+  </div>
+  <div class="panel rv"><div class="wave"></div><span class="ptag">게임 화면 · ${esc(g.name)}</span><span class="purl">${String(i+1).padStart(2,'0')} / ${GAMES.length}</span>
+    <div class="shot"><img src="shots/${g.shot}.png" alt="${esc(g.name)} 화면"></div>
+  </div>
+</section>`).join('');
+chrome.insertAdjacentHTML('beforebegin',cover+slidesHtml);
+
+/* ===========================================
+   QR 코드 자리: 같은 폴더에 qr.png 가 있으면 보여 줘요
+   =========================================== */
+const qrImg = document.getElementById('qrImg');
+qrImg.onload = ()=>document.getElementById('qr').classList.add('has');
+qrImg.src = 'qr.png';
+
+/* ===========================================
+   슬라이드 조종: 10초마다 자동으로 다음 장, 끝나면 처음으로
+   ← → 키로 넘기기, 스페이스로 멈춤/다시 시작, 화면을 누르면 다음 장
+   =========================================== */
+class SlidePresentation{
+  constructor(){
+    this.slides = [...document.querySelectorAll('.slide')];
+    this.names = ['우리가 만든 게임',...GAMES.map(g=>g.name)];
+    this.cur = 0; this.paused = false; this.timer = null;
+    this.autoMs = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--auto-ms'))||10000;
+    document.getElementById('dots').innerHTML = this.slides.map(()=>'<div class="dot"><i></i></div>').join('');
+    this.dots = [...document.querySelectorAll('.dot')];
+    this.setupStageScale(); this.setupKeyboardNav(); this.setupTouchNav();
+    this.showSlide(0);
+  }
+  // 1920×1080 무대를 통째로 화면에 맞춰 키우거나 줄여요 (내용 배치는 바뀌지 않아요)
+  setupStageScale(){
+    const scale = ()=>{
+      const f = Math.min(innerWidth/1920,innerHeight/1080), x = (innerWidth-1920*f)/2, y = (innerHeight-1080*f)/2;
+      stage.style.transform = `translate(${x}px, ${y}px) scale(${f})`;
+    };
+    scale(); addEventListener('resize',scale);
+  }
+  setupKeyboardNav(){
+    addEventListener('keydown',e=>{
+      if(['ArrowRight','PageDown','Enter'].includes(e.key)){ e.preventDefault(); this.next(); }
+      else if(['ArrowLeft','PageUp'].includes(e.key)){ e.preventDefault(); this.prev(); }
+      else if(e.key===' '){ e.preventDefault(); this.togglePause(); }
+      else if(e.key==='Home'){ this.showSlide(0); }
+    });
+    addEventListener('wheel',e=>{ if(Date.now()-(this.wheelAt||0)<600) return; this.wheelAt = Date.now(); e.deltaY>0 ? this.next() : this.prev(); },{passive:true});
+  }
+  setupTouchNav(){
+    let x0 = null;
+    addEventListener('touchstart',e=>{ x0 = e.touches[0].clientX; },{passive:true});
+    addEventListener('touchend',e=>{ if(x0===null) return; const dx = e.changedTouches[0].clientX-x0; x0 = null; if(Math.abs(dx)>50) dx<0 ? this.next() : this.prev(); else this.next(); });
+    addEventListener('click',()=>{ if(!('ontouchstart' in window)) this.next(); });
+  }
+  next(){ this.showSlide((this.cur+1)%this.slides.length); }
+  prev(){ this.showSlide((this.cur-1+this.slides.length)%this.slides.length); }
+  togglePause(){
+    this.paused = !this.paused; document.body.classList.toggle('paused',this.paused);
+    clearTimeout(this.timer); if(!this.paused) this.showSlide(this.cur);
+  }
+  showSlide(i){
+    this.cur = i;
+    this.slides.forEach((s,k)=>{ s.classList.toggle('active',k===i); s.classList.toggle('visible',k===i); });
+    this.dots.forEach((d,k)=>{
+      d.classList.toggle('done',k<i); d.classList.remove('cur');
+      if(k===i){ void d.offsetWidth; d.classList.add('cur'); }      // 진행 막대를 처음부터 다시 채워요
+    });
+    document.getElementById('counter').innerHTML = `<b>${String(i+1).padStart(2,'0')}</b> / ${String(this.slides.length).padStart(2,'0')}`;
+    document.getElementById('nextName').textContent = this.names[(i+1)%this.slides.length]+' →';
+    clearTimeout(this.timer);
+    if(!this.paused) this.timer = setTimeout(()=>this.next(),this.autoMs);
+  }
+}
+const deck = new SlidePresentation();
+</script>
+</body>
+</html>
