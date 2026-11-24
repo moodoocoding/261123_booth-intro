@@ -16,6 +16,7 @@
   --slide-bg:#faf8f2;       /* 슬라이드 바탕 (크림색) */
   --ink:#1b2444;            /* 글자, 남색 패널 */
   --sub:#4a5270;
+  --desc:#3a4263;          /* 설명 글자 */
   --line:#dedad0;
   --blue:#3550e0;           /* 강조 버튼 */
   --lime:#d9f65c;           /* 꼬리표 */
@@ -137,57 +138,61 @@ svg {
 
 /* ===========================================
    화면 구성 (볼 것은 두 가지뿐: 게임 소개와 QR 코드)
-   왼쪽: 분류 꼬리표 → 게임 이름 → 한 줄 설명
-   오른쪽: QR 코드 카드(위) → 게임 화면(아래)
-   맨 아래: 10초 진행 막대 한 줄
+   색의 역할을 나눴어요:
+     남색 = 제목과 게임 화면 틀 / 파랑 = "지금 해보기"(QR)와 진행 막대만 / 연두 = 분류 꼬리표만
+   배치 기준선 (1920×1080):
+     글 칸 x 110~860 · 게임 화면 x 950~1810 · 꼬리표 위쪽은 모든 장에서 y 300
    =========================================== */
 body{font-family:var(--font);color:var(--ink)}
 .slide{transition:opacity .5s ease}
 .chrome{position:absolute;inset:0;z-index:5;pointer-events:none}
-.brand{position:absolute;left:110px;top:120px;font-size:26px;font-weight:800;color:var(--sub);letter-spacing:-.3px}
-.brand b{color:var(--ink);font-weight:900;margin-right:14px}
+.brand{position:absolute;left:110px;top:136px;transform:translateY(-50%);font-size:28px;font-weight:700;color:var(--desc);letter-spacing:-.3px;white-space:nowrap}
+.brand b{color:var(--ink);font-weight:900;margin-right:16px}
 
-/* ----- 오른쪽 위 QR 코드 카드: 슬라이드가 바뀌면 그 게임의 QR로 바뀌어요 ----- */
-.qr{position:absolute;right:110px;top:56px;height:164px;padding:13px 13px 13px 36px;border-radius:28px;background:var(--ink);color:#fff;display:flex;align-items:center;gap:30px}
-.qr .txt{font-size:34px;font-weight:900;line-height:1.25;letter-spacing:-1.5px;white-space:nowrap}
-.qr .txt small{display:block;font-size:20px;font-weight:700;color:var(--lime);margin-bottom:5px;letter-spacing:0}
-.qr .box{width:138px;height:138px;border-radius:17px;background:#fff;position:relative;overflow:hidden;flex:none}
-.qr .code{position:absolute;inset:10px;display:none}
-.qr .code.on{display:block}
+/* ----- 오른쪽 위 QR 블록: 이 화면에서 유일한 "해 보세요" 색(파랑) -----
+   슬라이드가 바뀌면 그 게임의 QR 코드로 부드럽게 바뀌어요 */
+.qr{position:absolute;left:1390px;top:50px;width:420px;height:172px;padding:12px 12px 12px 32px;border-radius:28px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:space-between}
+.qr .txt{font-size:38px;font-weight:900;line-height:1.2;letter-spacing:-1px;white-space:nowrap}
+.qr .txt small{display:block;font-size:24px;font-weight:700;color:rgba(255,255,255,.85);margin-bottom:6px;letter-spacing:0}
+.qr .box{width:148px;height:148px;border-radius:14px;background:#fff;position:relative;overflow:hidden;flex:none}
+.qr .code{position:absolute;inset:8px;opacity:0;transition:opacity .3s ease}
+.qr .code.on{opacity:1}
 .qr .code img,.qr .code canvas{width:100%!important;height:100%!important;max-width:none;max-height:none;display:block}
 
-/* ----- 맨 아래 진행 막대 (10초 동안 차올라요) ----- */
-.bar{position:absolute;left:0;right:0;bottom:0;height:10px;background:var(--line)}
+/* ----- 맨 아래 진행 막대: 바탕 줄 없이 파란 줄만 10초 동안 차올라요 ----- */
+.bar{position:absolute;left:0;right:0;bottom:0;height:6px}
 .bar i{display:block;height:100%;background:var(--blue);transform:scaleX(0);transform-origin:0 50%}
 .bar i.run{animation:fill var(--auto-ms) linear forwards}
 .paused .bar i.run{animation-play-state:paused}
 @keyframes fill{to{transform:scaleX(1)}}
 
-/* ----- 왼쪽: 게임 소개 ----- */
-.left{position:absolute;left:110px;top:220px;bottom:90px;width:800px;display:flex;flex-direction:column;justify-content:center}
-.tag{align-self:flex-start;background:var(--lime);padding:11px 24px;border-radius:12px;font-size:30px;font-weight:900}
-.tag em{font-style:normal;opacity:.45;margin:0 6px}
-h1{font-size:132px;line-height:1.1;font-weight:900;letter-spacing:-6px;margin:34px 0 40px;white-space:pre-line}
-.desc{font-size:40px;line-height:1.5;font-weight:500;color:var(--sub);word-break:keep-all}
+/* ----- 왼쪽: 게임 소개 (위에서부터 차례로, 모든 장에서 같은 높이에서 시작) ----- */
+.left{position:absolute;left:110px;top:300px;width:750px}
+.tag{display:inline-block;background:var(--lime);padding:12px 24px;border-radius:12px;font-size:32px;font-weight:800;white-space:nowrap}
+.tag em{font-style:normal;opacity:.4;margin:0 8px}
+h1{font-size:140px;line-height:1.08;font-weight:900;letter-spacing:-.04em;margin:28px 0 36px;white-space:pre-line;word-break:keep-all}
+h1.one{font-size:150px;line-height:1.1}
+.desc{font-size:38px;line-height:1.5;font-weight:600;color:var(--desc);max-width:750px;word-break:keep-all;text-wrap:balance}
 
-/* ----- 오른쪽 아래: 게임 화면 ----- */
-.panel{position:absolute;right:110px;top:270px;width:860px;height:700px;border-radius:34px;background:var(--ink);padding:26px}
-.shot{width:100%;height:100%;border-radius:16px;overflow:hidden;background:#e9e6dc}
+/* ----- 오른쪽: 게임 화면 (밝은 화면이든 어두운 화면이든 같은 틀) ----- */
+.panel{position:absolute;left:950px;top:270px;width:860px;height:700px;border-radius:36px;background:var(--ink);padding:22px;box-shadow:0 30px 60px -24px rgba(27,36,68,.35)}
+.shot{width:100%;height:100%;border-radius:18px;overflow:hidden;background:#e9e6dc;box-shadow:0 0 0 2px rgba(255,255,255,.16)}
 .shot img{width:100%;height:100%;object-fit:cover;object-position:50% 0;display:block}
 .wall{width:100%;height:100%;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(3,1fr);gap:12px}
-.wall div{border-radius:12px;background:#fff;overflow:hidden}
+.wall div{border-radius:12px;background:#fff;overflow:hidden;box-shadow:0 0 0 2px rgba(255,255,255,.16)}
 .wall img{width:100%;height:100%;object-fit:cover;object-position:50% 0;display:block}
-.wall .more{background:var(--lime);display:grid;place-items:center;font-size:44px;font-weight:900;line-height:1.2;text-align:center}
+.wall .more{background:var(--lime);display:grid;place-items:center;font-size:44px;font-weight:900;line-height:1.2;text-align:center;box-shadow:none}
 
 /* ===========================================
-   등장 효과: 슬라이드가 바뀔 때 글과 화면이 차례로 올라와요
+   등장 효과: 글은 살짝 올라오고, 게임 화면은 제자리에서 떠올라요
+   (학교 이름과 QR 블록은 움직이지 않아요)
    =========================================== */
-.rv{opacity:0;transform:translateY(34px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.rv{opacity:0;transform:translateY(24px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
 .slide.visible .rv{opacity:1;transform:none}
 .slide.visible .rv:nth-child(2){transition-delay:.08s}
 .slide.visible .rv:nth-child(3){transition-delay:.16s}
-.panel.rv{transform:translateY(50px);transition-duration:.9s}
-.slide.visible .panel.rv{transition-delay:.14s}
+.panel.rv{transform:scale(.985);transition-duration:.7s}
+.slide.visible .panel.rv{transition-delay:.1s}
 </style>
 </head>
 <body>
@@ -196,7 +201,7 @@ h1{font-size:132px;line-height:1.1;font-weight:900;letter-spacing:-6px;margin:34
     <!-- 슬라이드는 아래 스크립트의 GAMES 목록으로 만들어져요 -->
     <div class="chrome" id="chrome">
       <div class="brand"><b>청주소로초등학교 디지털마스터</b>2026 충북 AI 페스티벌</div>
-      <div class="qr" id="qr"><div class="txt"><small>📱 휴대전화 카메라로 찍으면</small>바로 체험!</div><div class="box" id="qrBox"></div></div>
+      <div class="qr" id="qr"><div class="txt"><small>휴대폰 카메라로</small>지금 해보기</div><div class="box" id="qrBox"></div></div>
       <div class="bar"><i id="bar"></i></div>
     </div>
   </main>
@@ -243,7 +248,7 @@ const cover = `<section class="slide">
 const slidesHtml = GAMES.map(g=>`<section class="slide">
   <div class="left">
     <span class="tag rv">${esc(g.subj)}<em>·</em>${esc(g.players)}${g.rank?'<em>·</em>🏆 랭킹 도전':''}</span>
-    <h1 class="rv">${esc(g.title)}</h1>
+    <h1 class="rv ${g.title.includes('\n')?'':'one'}">${esc(g.title)}</h1>
     <p class="desc rv">${esc(g.desc)}</p>
   </div>
   <div class="panel rv"><div class="shot"><img src="shots/${g.shot}.png" alt="${esc(g.name)} 화면"></div></div>
@@ -313,6 +318,10 @@ class SlidePresentation{
   }
 }
 const deck = new SlidePresentation();
+// 주소 뒤에 ?s=3 을 붙이면 3번째 장부터, &pause=1 을 붙이면 멈춘 채로 열려요 (점검용)
+const qs = new URLSearchParams(location.search);
+if(qs.get('pause')) deck.togglePause();
+if(qs.get('s')) deck.showSlide(Math.max(0,Math.min(deck.slides.length-1,(parseInt(qs.get('s'))||1)-1)));
 </script>
 </body>
 </html>
