@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI 체험 부스 · 우리가 만든 게임 소개</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500;700;800;900&display=swap" rel="stylesheet">
 <style>
 /* ===========================================
@@ -146,18 +147,18 @@ body{font-family:var(--font);color:var(--ink)}
 .brand b{font-size:34px;font-weight:900;letter-spacing:-1px}
 .brand small{display:block;font-size:19px;font-weight:700;color:var(--sub);margin-top:2px}
 .topline{position:absolute;left:96px;right:96px;top:180px;height:2px;background:var(--line)}
-.counter{position:absolute;right:450px;top:72px;font-size:24px;font-weight:800;color:var(--sub);letter-spacing:1px}
+.counter{position:absolute;left:760px;top:72px;font-size:24px;font-weight:800;color:var(--sub);letter-spacing:1px}
 .counter b{color:var(--ink);font-size:34px;font-weight:900}
 
 /* ----- 오른쪽 위 QR 코드 카드 -----
-   같은 폴더에 qr.png 를 넣으면 흰 칸에 자동으로 나와요. 없으면 빈 칸으로 보여요. */
-.qr{position:absolute;right:96px;top:30px;height:128px;padding:12px 12px 12px 30px;border-radius:26px;background:var(--ink);color:#fff;display:flex;align-items:center;gap:24px;box-shadow:0 10px 0 rgba(27,36,68,.16)}
-.qr .txt{font-size:25px;font-weight:900;line-height:1.35;letter-spacing:-.5px}
+   슬라이드가 바뀔 때마다 그 게임으로 바로 가는 QR 코드로 바뀌어요. (첫 장은 게임 모음 사이트) */
+.qr{position:absolute;right:96px;top:18px;height:150px;padding:12px 12px 12px 30px;border-radius:28px;background:var(--ink);color:#fff;display:flex;align-items:center;gap:24px;box-shadow:0 10px 0 rgba(27,36,68,.16)}
+.qr .txt{font-size:27px;font-weight:900;line-height:1.35;letter-spacing:-.5px;max-width:330px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .qr .txt small{display:block;font-size:18px;font-weight:700;color:var(--lime);margin-bottom:2px;letter-spacing:0}
-.qr .box{width:104px;height:104px;border-radius:16px;background:#fff;display:grid;place-items:center;overflow:hidden;flex:none;
-  background-image:linear-gradient(#e7e4da 0 0),linear-gradient(#e7e4da 0 0),linear-gradient(#e7e4da 0 0);background-repeat:no-repeat;background-size:26px 26px;background-position:12px 12px,66px 12px,12px 66px}
-.qr img{width:100%;height:100%;object-fit:contain;padding:7px;display:none;background:#fff}
-.qr.has img{display:block}
+.qr .box{width:126px;height:126px;border-radius:16px;background:#fff;position:relative;overflow:hidden;flex:none}
+.qr .code{position:absolute;inset:9px;display:none}
+.qr .code.on{display:block}
+.qr .code img,.qr .code canvas{width:100%!important;height:100%!important;max-width:none;max-height:none;display:block}
 
 .band{position:absolute;left:0;right:0;bottom:0;height:150px;background:var(--band);border-top:2px solid var(--line);display:flex;align-items:center;gap:40px;padding:0 96px}
 .band .next{flex:none;width:430px}
@@ -223,7 +224,7 @@ h1.long{font-size:92px}
     <div class="chrome" id="chrome">
       <div class="brand"><div class="mark">🎮</div><div><b>AI 체험 부스</b><small>2026 충북 AI 페스티벌 · 초등학생이 만든 게임</small></div></div>
       <div class="counter" id="counter"></div>
-      <div class="qr" id="qr"><div class="txt"><small>📱 휴대전화로 찍으면</small>바로 체험!</div><div class="box"><img id="qrImg" alt="QR 코드"></div></div>
+      <div class="qr" id="qr"><div class="txt"><small>📱 휴대전화로 찍으면 바로 체험!</small><span id="qrName"></span></div><div class="box" id="qrBox"></div></div>
       <div class="topline"></div>
       <div class="band">
         <div class="next"><small>다음 소개</small><b id="nextName"></b></div>
@@ -238,23 +239,25 @@ h1.long{font-size:92px}
 /* ===========================================
    소개할 게임 목록
    한 줄을 더하면 슬라이드가 한 장 늘어나요.
-   shot: shots 폴더의 화면 사진 이름
+   shot: shots 폴더의 화면 사진 이름, url: QR 코드로 열릴 주소
    title 안의 \n 은 줄바꿈이에요.
    =========================================== */
+// 게임 주소 (QR 코드가 가리키는 곳). 부스 모음 사이트의 게임별 주소를 써요.
+const HUB = 'https://ai-festival-booth.vercel.app/';
 const GAMES = [
-  {shot:'spacing',subj:'국어',name:'띄어쓰기 1등은 누구?',title:'띄어쓰기,\n누가\n1등일까?',desc:'글자 사이를 눌러 알맞게 띄어 써요. 화면을 나눠 최대 4명이 동시에 겨뤄요.',players:'1~4명',rank:true},
-  {shot:'fight',subj:'수학',name:'수학격투',title:'구구단이\n필살기가\n된다.',desc:'곱셈 문제를 풀어 필살기를 날리는 격투 게임. 둘이서 화면을 나눠 대결할 수 있어요.',players:'1~2명',rank:true},
-  {shot:'gugudan',subj:'수학',name:'구구단 가디언즈',title:'구구단으로\n성을\n지켜라.',desc:'구구단을 맞혀 금화를 모으고, 탑을 세워 몰려오는 적을 막아요.',players:'1명',rank:true},
-  {shot:'space',subj:'과학',name:'우주정복자',title:'태양계\n여덟 행성을\n정복하라.',desc:'행성을 하나씩 찾아가 퀴즈를 풀어요. 모두 정복하면 우주정복자 임명장을 받아요.',players:'1명',rank:true},
-  {shot:'weather',subj:'과학',name:'꼬마 기상청장',title:'오늘 날씨는\n내가\n정한다.',desc:'해, 비, 눈, 바람을 직접 바꿔 보며 날씨가 어떻게 달라지는지 알아봐요.',players:'1명',rank:false},
-  {shot:'capital',subj:'사회',name:'나라 수도 맞추기',title:'사진을 보고\n수도를\n맞혀라.',desc:'세계 50개 나라의 사진과 국기를 보고 수도를 골라요. 힌트 없이 맞히면 점수가 두 배!',players:'1명',rank:true},
-  {shot:'quiz',subj:'퀴즈',name:'트리플 퀴즈 쇼',title:'상식, 연산,\n아재개그\n까지.',desc:'세 라운드로 이어지는 퀴즈 쇼. 둘이서 먼저 맞히기 대결도 할 수 있어요.',players:'1~2명',rank:true},
-  {shot:'runner',subj:'퀴즈',name:'퀴즈 & 점프 런너',title:'뛰고,\n풀고,\n부스트!',desc:'장애물은 점프로 넘고, 퀴즈를 맞히면 빨라져요. 최대 4명이 동시에 달려요.',players:'1~4명',rank:true},
-  {shot:'brain',subj:'두뇌',name:'브레인 대시',title:'딱 1분,\n두뇌를\n깨워라.',desc:'색깔 판별, 암산, 기억력 게임을 20초씩 이어서 해요. 내 두뇌 유형도 알려 줘요.',players:'1명',rank:true},
-  {shot:'block',subj:'두뇌',name:'블록 퍼즐 챔피언',title:'블록을 놓아\n줄을\n지워라.',desc:'8×8 판에 블록을 놓아 가로줄이나 세로줄을 꽉 채우면 지워져요.',players:'1명',rank:true},
-  {shot:'swing',subj:'액션',name:'휙휙! 로프 스윙',title:'휙휙\n날아서\n끝까지.',desc:'로프를 걸고 흔들흔들 날아서 다섯 스테이지를 건너가요.',players:'1명',rank:true},
-  {shot:'beat',subj:'액션',name:'비트스매시 클럽',title:'박자에\n맞춰\n딱!',desc:'음악에 맞춰 떨어지는 노트를 딱 맞는 순간에 눌러요.',players:'1명',rank:true},
-  {shot:'core',subj:'액션',name:'택티컬 코어 디펜스',title:'드론을 막고\n코어를\n지켜라.',desc:'몰려오는 드론을 물리치며 10 웨이브 동안 코어를 지키는 슈팅 게임.',players:'1명',rank:true}
+  {shot:'spacing',url:HUB+'games/spacing-champion/',subj:'국어',name:'띄어쓰기 1등은 누구?',title:'띄어쓰기,\n누가\n1등일까?',desc:'글자 사이를 눌러 알맞게 띄어 써요. 화면을 나눠 최대 4명이 동시에 겨뤄요.',players:'1~4명',rank:true},
+  {shot:'fight',url:HUB+'games/math-fighter/',subj:'수학',name:'수학격투',title:'구구단이\n필살기가\n된다.',desc:'곱셈 문제를 풀어 필살기를 날리는 격투 게임. 둘이서 화면을 나눠 대결할 수 있어요.',players:'1~2명',rank:true},
+  {shot:'gugudan',url:'https://261123-gugudan-guardians.vercel.app/',subj:'수학',name:'구구단 가디언즈',title:'구구단으로\n성을\n지켜라.',desc:'구구단을 맞혀 금화를 모으고, 탑을 세워 몰려오는 적을 막아요.',players:'1명',rank:true},
+  {shot:'space',url:HUB+'games/space-conqueror/',subj:'과학',name:'우주정복자',title:'태양계\n여덟 행성을\n정복하라.',desc:'행성을 하나씩 찾아가 퀴즈를 풀어요. 모두 정복하면 우주정복자 임명장을 받아요.',players:'1명',rank:true},
+  {shot:'weather',url:HUB+'games/weather-simulator/',subj:'과학',name:'꼬마 기상청장',title:'오늘 날씨는\n내가\n정한다.',desc:'해, 비, 눈, 바람을 직접 바꿔 보며 날씨가 어떻게 달라지는지 알아봐요.',players:'1명',rank:false},
+  {shot:'capital',url:HUB+'games/capital-quiz/',subj:'사회',name:'나라 수도 맞추기',title:'사진을 보고\n수도를\n맞혀라.',desc:'세계 50개 나라의 사진과 국기를 보고 수도를 골라요. 힌트 없이 맞히면 점수가 두 배!',players:'1명',rank:true},
+  {shot:'quiz',url:HUB+'games/triple-quiz-show/',subj:'퀴즈',name:'트리플 퀴즈 쇼',title:'상식, 연산,\n아재개그\n까지.',desc:'세 라운드로 이어지는 퀴즈 쇼. 둘이서 먼저 맞히기 대결도 할 수 있어요.',players:'1~2명',rank:true},
+  {shot:'runner',url:HUB+'games/quiz-runner/',subj:'퀴즈',name:'퀴즈 & 점프 런너',title:'뛰고,\n풀고,\n부스트!',desc:'장애물은 점프로 넘고, 퀴즈를 맞히면 빨라져요. 최대 4명이 동시에 달려요.',players:'1~4명',rank:true},
+  {shot:'brain',url:HUB+'games/brain-dash/',subj:'두뇌',name:'브레인 대시',title:'딱 1분,\n두뇌를\n깨워라.',desc:'색깔 판별, 암산, 기억력 게임을 20초씩 이어서 해요. 내 두뇌 유형도 알려 줘요.',players:'1명',rank:true},
+  {shot:'block',url:HUB+'games/block-puzzle/',subj:'두뇌',name:'블록 퍼즐 챔피언',title:'블록을 놓아\n줄을\n지워라.',desc:'8×8 판에 블록을 놓아 가로줄이나 세로줄을 꽉 채우면 지워져요.',players:'1명',rank:true},
+  {shot:'swing',url:HUB+'games/rope-swing/',subj:'액션',name:'휙휙! 로프 스윙',title:'휙휙\n날아서\n끝까지.',desc:'로프를 걸고 흔들흔들 날아서 다섯 스테이지를 건너가요.',players:'1명',rank:true},
+  {shot:'beat',url:HUB+'games/beat-smash/',subj:'액션',name:'비트스매시 클럽',title:'박자에\n맞춰\n딱!',desc:'음악에 맞춰 떨어지는 노트를 딱 맞는 순간에 눌러요.',players:'1명',rank:true},
+  {shot:'core',url:HUB+'games/core-defense/',subj:'액션',name:'택티컬 코어 디펜스',title:'드론을 막고\n코어를\n지켜라.',desc:'몰려오는 드론을 물리치며 10 웨이브 동안 코어를 지키는 슈팅 게임.',players:'1명',rank:true}
 ];
 const esc = s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -287,11 +290,15 @@ const slidesHtml = GAMES.map((g,i)=>`<section class="slide">
 chrome.insertAdjacentHTML('beforebegin',cover+slidesHtml);
 
 /* ===========================================
-   QR 코드 자리: 같은 폴더에 qr.png 가 있으면 보여 줘요
+   QR 코드: 장마다 하나씩 미리 만들어 두고, 슬라이드가 바뀌면 바꿔 보여 줘요
    =========================================== */
-const qrImg = document.getElementById('qrImg');
-qrImg.onload = ()=>document.getElementById('qr').classList.add('has');
-qrImg.src = 'qr.png';
+const QR_URLS = [HUB,...GAMES.map(g=>g.url)], QR_NAMES = ['게임 모음 전체 보기',...GAMES.map(g=>g.name)];
+const qrBox = document.getElementById('qrBox');
+QR_URLS.forEach(u=>{
+  const d = document.createElement('div'); d.className = 'code'; qrBox.appendChild(d);
+  try{ new QRCode(d,{text:u,width:432,height:432,colorDark:'#111827',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.L}); }catch(e){}   // 인터넷이 없으면 빈 칸으로 남아요
+});
+function showQR(i){ [...qrBox.children].forEach((c,k)=>c.classList.toggle('on',k===i)); document.getElementById('qrName').textContent = QR_NAMES[i]; }
 
 /* ===========================================
    슬라이드 조종: 10초마다 자동으로 다음 장, 끝나면 처음으로
@@ -346,6 +353,7 @@ class SlidePresentation{
     });
     document.getElementById('counter').innerHTML = `<b>${String(i+1).padStart(2,'0')}</b> / ${String(this.slides.length).padStart(2,'0')}`;
     document.getElementById('nextName').textContent = this.names[(i+1)%this.slides.length]+' →';
+    showQR(i);
     clearTimeout(this.timer);
     if(!this.paused) this.timer = setTimeout(()=>this.next(),this.autoMs);
   }
