@@ -146,16 +146,16 @@ svg {
 body{font-family:var(--font);color:var(--ink)}
 .slide{transition:opacity .5s ease}
 .chrome{position:absolute;inset:0;z-index:5;pointer-events:none}
-.brand{position:absolute;left:110px;top:136px;transform:translateY(-50%);font-size:28px;font-weight:700;color:var(--desc);letter-spacing:-.3px;white-space:nowrap}
+.brand{position:absolute;left:110px;top:130px;transform:translateY(-50%);font-size:28px;font-weight:700;color:var(--desc);letter-spacing:-.3px;white-space:nowrap}
 .brand b{color:var(--ink);font-weight:900;margin-right:16px}
 
 /* ----- 오른쪽 위 QR 블록: 이 화면에서 유일한 "해 보세요" 색(파랑) -----
    슬라이드가 바뀌면 그 게임의 QR 코드로 부드럽게 바뀌어요 */
-.qr{position:absolute;left:1390px;top:50px;width:420px;height:172px;padding:12px 12px 12px 32px;border-radius:28px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:space-between}
-.qr .txt{font-size:38px;font-weight:900;line-height:1.2;letter-spacing:-1px;white-space:nowrap}
-.qr .txt small{display:block;font-size:24px;font-weight:700;color:rgba(255,255,255,.85);margin-bottom:6px;letter-spacing:0}
-.qr .box{width:148px;height:148px;border-radius:14px;background:#fff;position:relative;overflow:hidden;flex:none}
-.qr .code{position:absolute;inset:8px;opacity:0;transition:opacity .3s ease}
+.qr{position:absolute;right:110px;top:66px;height:128px;padding:10px 10px 10px 30px;gap:28px;border-radius:24px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:space-between}
+.qr .txt{font-size:32px;font-weight:900;line-height:1.2;letter-spacing:-1px;white-space:nowrap}
+.qr .txt small{display:block;font-size:21px;font-weight:700;color:rgba(255,255,255,.85);margin-bottom:3px;letter-spacing:0}
+.qr .box{width:108px;height:108px;border-radius:12px;background:#fff;position:relative;overflow:hidden;flex:none}
+.qr .code{position:absolute;inset:6px;opacity:0;transition:opacity .3s ease}
 .qr .code.on{opacity:1}
 .qr .code img,.qr .code canvas{width:100%!important;height:100%!important;max-width:none;max-height:none;display:block}
 
