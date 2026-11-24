@@ -22,7 +22,7 @@
   --band:#f0eee5;           /* 아래 띠 */
   --font:'Gothic A1','Malgun Gothic',sans-serif;
   --ease:cubic-bezier(.16,1,.3,1);
-  --auto-ms:10000;          /* 자동으로 넘어가는 시간 (10초) */
+  --auto-ms:10000ms;        /* 자동으로 넘어가는 시간 (10초 = 10000ms) */
 }
 *{margin:0;padding:0;box-sizing:border-box}
 
@@ -136,85 +136,58 @@ svg {
 }
 
 /* ===========================================
-   공통 틀: 위쪽 줄 (이름표 + QR 자리), 아래 띠 (진행 표시)
-   모든 슬라이드 위에 늘 떠 있어요
+   화면 구성 (볼 것은 두 가지뿐: 게임 소개와 QR 코드)
+   왼쪽: 분류 꼬리표 → 게임 이름 → 한 줄 설명
+   오른쪽: QR 코드 카드(위) → 게임 화면(아래)
+   맨 아래: 10초 진행 막대 한 줄
    =========================================== */
 body{font-family:var(--font);color:var(--ink)}
 .slide{transition:opacity .5s ease}
 .chrome{position:absolute;inset:0;z-index:5;pointer-events:none}
-.brand{position:absolute;left:96px;top:56px;display:flex;align-items:center;gap:18px}
-.brand .mark{width:64px;height:64px;border-radius:20px;background:var(--blue);display:grid;place-items:center;font-size:34px;box-shadow:0 8px 0 rgba(53,80,224,.25)}
-.brand b{font-size:34px;font-weight:900;letter-spacing:-1px}
-.brand small{display:block;font-size:19px;font-weight:700;color:var(--sub);margin-top:2px}
-.topline{position:absolute;left:96px;right:96px;top:180px;height:2px;background:var(--line)}
-.counter{position:absolute;left:760px;top:72px;font-size:24px;font-weight:800;color:var(--sub);letter-spacing:1px}
-.counter b{color:var(--ink);font-size:34px;font-weight:900}
+.brand{position:absolute;left:110px;top:84px;font-size:26px;font-weight:800;color:var(--sub);letter-spacing:-.3px}
+.brand b{color:var(--ink);font-weight:900;margin-right:14px}
 
-/* ----- 오른쪽 위 QR 코드 카드 -----
-   슬라이드가 바뀔 때마다 그 게임으로 바로 가는 QR 코드로 바뀌어요. (첫 장은 게임 모음 사이트) */
-.qr{position:absolute;right:96px;top:18px;height:150px;padding:12px 12px 12px 30px;border-radius:28px;background:var(--ink);color:#fff;display:flex;align-items:center;gap:24px;box-shadow:0 10px 0 rgba(27,36,68,.16)}
-.qr .txt{font-size:27px;font-weight:900;line-height:1.35;letter-spacing:-.5px;max-width:330px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.qr .txt small{display:block;font-size:18px;font-weight:700;color:var(--lime);margin-bottom:2px;letter-spacing:0}
-.qr .box{width:126px;height:126px;border-radius:16px;background:#fff;position:relative;overflow:hidden;flex:none}
-.qr .code{position:absolute;inset:9px;display:none}
+/* ----- 오른쪽 위 QR 코드 카드: 슬라이드가 바뀌면 그 게임의 QR로 바뀌어요 ----- */
+.qr{position:absolute;right:110px;top:60px;height:232px;padding:16px 16px 16px 44px;border-radius:34px;background:var(--ink);color:#fff;display:flex;align-items:center;gap:40px}
+.qr .txt{font-size:44px;font-weight:900;line-height:1.25;letter-spacing:-1.5px;white-space:nowrap}
+.qr .txt small{display:block;font-size:24px;font-weight:700;color:var(--lime);margin-bottom:8px;letter-spacing:0}
+.qr .box{width:200px;height:200px;border-radius:22px;background:#fff;position:relative;overflow:hidden;flex:none}
+.qr .code{position:absolute;inset:14px;display:none}
 .qr .code.on{display:block}
 .qr .code img,.qr .code canvas{width:100%!important;height:100%!important;max-width:none;max-height:none;display:block}
 
-.band{position:absolute;left:0;right:0;bottom:0;height:150px;background:var(--band);border-top:2px solid var(--line);display:flex;align-items:center;gap:40px;padding:0 96px}
-.band .next{flex:none;width:430px}
-.band .next small{display:block;font-size:20px;font-weight:700;color:var(--sub);margin-bottom:4px}
-.band .next b{font-size:32px;font-weight:900;white-space:nowrap}
-.dots{flex:1;display:flex;gap:10px;align-items:center}
-.dot{flex:1;height:12px;border-radius:99px;background:#dcd8cb;overflow:hidden;position:relative}
-.dot.done{background:var(--ink)}
-.dot i{position:absolute;inset:0;background:var(--blue);transform:scaleX(0);transform-origin:0 50%}
-.dot.cur i{animation:fill var(--auto-ms) linear forwards}
-.paused .dot.cur i{animation-play-state:paused}
+/* ----- 맨 아래 진행 막대 (10초 동안 차올라요) ----- */
+.bar{position:absolute;left:0;right:0;bottom:0;height:10px;background:var(--line)}
+.bar i{display:block;height:100%;background:var(--blue);transform:scaleX(0);transform-origin:0 50%}
+.bar i.run{animation:fill var(--auto-ms) linear forwards}
+.paused .bar i.run{animation-play-state:paused}
 @keyframes fill{to{transform:scaleX(1)}}
-.band .hint{flex:none;font-size:19px;font-weight:700;color:#8b8779;text-align:right;line-height:1.5}
 
-/* ===========================================
-   슬라이드 본문: 왼쪽 큰 제목 + 오른쪽 남색 화면 패널
-   =========================================== */
-.left{position:absolute;left:96px;top:232px;width:800px}
-.tag{display:inline-flex;align-items:center;gap:10px;background:var(--lime);padding:10px 22px;border-radius:12px;font-size:27px;font-weight:900}
-.tag em{font-style:normal;opacity:.55}
-h1{font-size:104px;line-height:1.1;font-weight:900;letter-spacing:-4.5px;margin:22px 0 24px;white-space:pre-line}
-h1.long{font-size:92px}
-.desc{font-size:32px;line-height:1.5;font-weight:500;color:var(--sub);width:760px;word-break:keep-all}
-.pills{display:flex;gap:16px;margin-top:30px;flex-wrap:wrap}
-.pill{font-size:27px;font-weight:800;padding:18px 30px;border-radius:18px;border:2.5px solid #cfcabb;background:#fff}
-.pill.pri{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 8px 0 rgba(53,80,224,.25)}
+/* ----- 왼쪽: 게임 소개 ----- */
+.left{position:absolute;left:110px;top:200px;bottom:90px;width:800px;display:flex;flex-direction:column;justify-content:center}
+.tag{align-self:flex-start;background:var(--lime);padding:11px 24px;border-radius:12px;font-size:30px;font-weight:900}
+.tag em{font-style:normal;opacity:.45;margin:0 6px}
+h1{font-size:132px;line-height:1.1;font-weight:900;letter-spacing:-6px;margin:34px 0 40px;white-space:pre-line}
+.desc{font-size:40px;line-height:1.5;font-weight:500;color:var(--sub);word-break:keep-all}
 
-.panel{position:absolute;right:96px;top:226px;width:880px;height:660px;border-radius:38px;background:var(--ink);overflow:hidden}
-.panel::before,.panel::after{content:'';position:absolute;border-radius:50%;border:2px solid rgba(160,176,255,.5)}
-.panel::before{width:1300px;height:1300px;right:-760px;top:-420px}
-.panel::after{width:1500px;height:1500px;right:-900px;top:-470px;border-color:rgba(160,176,255,.3)}
-.panel .wave{position:absolute;left:-180px;bottom:-330px;width:620px;height:620px;border-radius:50%;background:var(--blue)}
-.ptag{position:absolute;left:54px;top:46px;background:var(--lime);color:var(--ink);padding:9px 20px;border-radius:10px;font-size:25px;font-weight:900;z-index:2}
-.purl{position:absolute;right:54px;top:54px;color:#fff;font-size:22px;font-weight:800;z-index:2;opacity:.9}
-.shot{position:absolute;left:54px;right:54px;top:118px;bottom:50px;border-radius:20px;background:#fff;padding:10px;box-shadow:0 12px 0 rgba(255,255,255,.18),0 30px 60px rgba(0,0,0,.4);z-index:2}
-.shot img{width:100%;height:100%;object-fit:cover;object-position:50% 0;border-radius:12px;display:block;background:#e9e6dc}
-
-/* ----- 첫 슬라이드 (전체 소개) ----- */
-.cover h1{font-size:130px;line-height:1.13;margin:26px 0 28px}
-.wall{position:absolute;left:54px;right:54px;top:118px;bottom:50px;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(3,1fr);gap:14px;z-index:2}
-.wall div{border-radius:16px;background:#fff;overflow:hidden;box-shadow:0 8px 20px rgba(0,0,0,.3)}
+/* ----- 오른쪽 아래: 게임 화면 ----- */
+.panel{position:absolute;right:110px;top:340px;width:860px;height:640px;border-radius:34px;background:var(--ink);padding:26px}
+.shot{width:100%;height:100%;border-radius:16px;overflow:hidden;background:#e9e6dc}
+.shot img{width:100%;height:100%;object-fit:cover;object-position:50% 0;display:block}
+.wall{width:100%;height:100%;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(3,1fr);gap:12px}
+.wall div{border-radius:12px;background:#fff;overflow:hidden}
 .wall img{width:100%;height:100%;object-fit:cover;object-position:50% 0;display:block}
-.wall .more{background:var(--lime);display:grid;place-items:center;font-size:40px;font-weight:900;line-height:1.2;text-align:center}
+.wall .more{background:var(--lime);display:grid;place-items:center;font-size:44px;font-weight:900;line-height:1.2;text-align:center}
 
 /* ===========================================
-   등장 효과: 슬라이드가 바뀔 때 차례로 올라와요
+   등장 효과: 슬라이드가 바뀔 때 글과 화면이 차례로 올라와요
    =========================================== */
 .rv{opacity:0;transform:translateY(34px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
 .slide.visible .rv{opacity:1;transform:none}
 .slide.visible .rv:nth-child(2){transition-delay:.08s}
 .slide.visible .rv:nth-child(3){transition-delay:.16s}
-.slide.visible .rv:nth-child(4){transition-delay:.24s}
-.panel.rv{transform:translateX(60px) scale(.97);transition-duration:.9s}
-.slide.visible .panel.rv{transition-delay:.12s}
-.shot,.wall{transform:translateY(40px);opacity:0;transition:opacity .8s var(--ease) .35s,transform .8s var(--ease) .35s}
-.slide.visible .shot,.slide.visible .wall{transform:none;opacity:1}
+.panel.rv{transform:translateY(50px);transition-duration:.9s}
+.slide.visible .panel.rv{transition-delay:.14s}
 </style>
 </head>
 <body>
@@ -222,15 +195,9 @@ h1.long{font-size:92px}
   <main class="deck-stage" id="deckStage">
     <!-- 슬라이드는 아래 스크립트의 GAMES 목록으로 만들어져요 -->
     <div class="chrome" id="chrome">
-      <div class="brand"><div class="mark">🎮</div><div><b>AI 체험 부스</b><small>2026 충북 AI 페스티벌 · 초등학생이 만든 게임</small></div></div>
-      <div class="counter" id="counter"></div>
-      <div class="qr" id="qr"><div class="txt"><small>📱 휴대전화로 찍으면 바로 체험!</small><span id="qrName"></span></div><div class="box" id="qrBox"></div></div>
-      <div class="topline"></div>
-      <div class="band">
-        <div class="next"><small>다음 소개</small><b id="nextName"></b></div>
-        <div class="dots" id="dots"></div>
-        <div class="hint">← → 넘기기<br>스페이스 멈춤</div>
-      </div>
+      <div class="brand"><b>AI 체험 부스</b>2026 충북 AI 페스티벌</div>
+      <div class="qr" id="qr"><div class="txt"><small>📱 휴대전화 카메라로 찍으면</small>바로 체험!</div><div class="box" id="qrBox"></div></div>
+      <div class="bar"><i id="bar"></i></div>
     </div>
   </main>
 </div>
@@ -240,24 +207,24 @@ h1.long{font-size:92px}
    소개할 게임 목록
    한 줄을 더하면 슬라이드가 한 장 늘어나요.
    shot: shots 폴더의 화면 사진 이름, url: QR 코드로 열릴 주소
-   title 안의 \n 은 줄바꿈이에요.
+   title: 크게 보이는 게임 이름 (\n 은 줄바꿈), desc: 한 줄 설명
    =========================================== */
 // 게임 주소 (QR 코드가 가리키는 곳). 부스 모음 사이트의 게임별 주소를 써요.
 const HUB = 'https://ai-festival-booth.vercel.app/';
 const GAMES = [
-  {shot:'spacing',url:HUB+'games/spacing-champion/',subj:'국어',name:'띄어쓰기 1등은 누구?',title:'띄어쓰기,\n누가\n1등일까?',desc:'글자 사이를 눌러 알맞게 띄어 써요. 화면을 나눠 최대 4명이 동시에 겨뤄요.',players:'1~4명',rank:true},
-  {shot:'fight',url:HUB+'games/math-fighter/',subj:'수학',name:'수학격투',title:'구구단이\n필살기가\n된다.',desc:'곱셈 문제를 풀어 필살기를 날리는 격투 게임. 둘이서 화면을 나눠 대결할 수 있어요.',players:'1~2명',rank:true},
-  {shot:'gugudan',url:'https://261123-gugudan-guardians.vercel.app/',subj:'수학',name:'구구단 가디언즈',title:'구구단으로\n성을\n지켜라.',desc:'구구단을 맞혀 금화를 모으고, 탑을 세워 몰려오는 적을 막아요.',players:'1명',rank:true},
-  {shot:'space',url:HUB+'games/space-conqueror/',subj:'과학',name:'우주정복자',title:'태양계\n여덟 행성을\n정복하라.',desc:'행성을 하나씩 찾아가 퀴즈를 풀어요. 모두 정복하면 우주정복자 임명장을 받아요.',players:'1명',rank:true},
-  {shot:'weather',url:HUB+'games/weather-simulator/',subj:'과학',name:'꼬마 기상청장',title:'오늘 날씨는\n내가\n정한다.',desc:'해, 비, 눈, 바람을 직접 바꿔 보며 날씨가 어떻게 달라지는지 알아봐요.',players:'1명',rank:false},
-  {shot:'capital',url:HUB+'games/capital-quiz/',subj:'사회',name:'나라 수도 맞추기',title:'사진을 보고\n수도를\n맞혀라.',desc:'세계 50개 나라의 사진과 국기를 보고 수도를 골라요. 힌트 없이 맞히면 점수가 두 배!',players:'1명',rank:true},
-  {shot:'quiz',url:HUB+'games/triple-quiz-show/',subj:'퀴즈',name:'트리플 퀴즈 쇼',title:'상식, 연산,\n아재개그\n까지.',desc:'세 라운드로 이어지는 퀴즈 쇼. 둘이서 먼저 맞히기 대결도 할 수 있어요.',players:'1~2명',rank:true},
-  {shot:'runner',url:HUB+'games/quiz-runner/',subj:'퀴즈',name:'퀴즈 & 점프 런너',title:'뛰고,\n풀고,\n부스트!',desc:'장애물은 점프로 넘고, 퀴즈를 맞히면 빨라져요. 최대 4명이 동시에 달려요.',players:'1~4명',rank:true},
-  {shot:'brain',url:HUB+'games/brain-dash/',subj:'두뇌',name:'브레인 대시',title:'딱 1분,\n두뇌를\n깨워라.',desc:'색깔 판별, 암산, 기억력 게임을 20초씩 이어서 해요. 내 두뇌 유형도 알려 줘요.',players:'1명',rank:true},
-  {shot:'block',url:HUB+'games/block-puzzle/',subj:'두뇌',name:'블록 퍼즐 챔피언',title:'블록을 놓아\n줄을\n지워라.',desc:'8×8 판에 블록을 놓아 가로줄이나 세로줄을 꽉 채우면 지워져요.',players:'1명',rank:true},
-  {shot:'swing',url:HUB+'games/rope-swing/',subj:'액션',name:'휙휙! 로프 스윙',title:'휙휙\n날아서\n끝까지.',desc:'로프를 걸고 흔들흔들 날아서 다섯 스테이지를 건너가요.',players:'1명',rank:true},
-  {shot:'beat',url:HUB+'games/beat-smash/',subj:'액션',name:'비트스매시 클럽',title:'박자에\n맞춰\n딱!',desc:'음악에 맞춰 떨어지는 노트를 딱 맞는 순간에 눌러요.',players:'1명',rank:true},
-  {shot:'core',url:HUB+'games/core-defense/',subj:'액션',name:'택티컬 코어 디펜스',title:'드론을 막고\n코어를\n지켜라.',desc:'몰려오는 드론을 물리치며 10 웨이브 동안 코어를 지키는 슈팅 게임.',players:'1명',rank:true}
+  {shot:'spacing',url:HUB+'games/spacing-champion/',subj:'국어',name:'띄어쓰기 1등은 누구?',title:'띄어쓰기\n1등은 누구?',desc:'글자 사이를 눌러 알맞게 띄어 써요. 최대 4명이 동시에 겨뤄요.',players:'1~4명',rank:true},
+  {shot:'fight',url:HUB+'games/math-fighter/',subj:'수학',name:'수학격투',title:'수학격투',desc:'곱셈 문제를 풀어 필살기를 날리는 격투 게임이에요.',players:'1~2명',rank:true},
+  {shot:'gugudan',url:'https://261123-gugudan-guardians.vercel.app/',subj:'수학',name:'구구단 가디언즈',title:'구구단\n가디언즈',desc:'구구단을 맞혀 탑을 세우고 몰려오는 적을 막아요.',players:'1명',rank:true},
+  {shot:'space',url:HUB+'games/space-conqueror/',subj:'과학',name:'우주정복자',title:'우주정복자',desc:'태양계 여덟 행성을 찾아가 퀴즈를 풀고 정복해요.',players:'1명',rank:true},
+  {shot:'weather',url:HUB+'games/weather-simulator/',subj:'과학',name:'꼬마 기상청장',title:'꼬마\n기상청장',desc:'해, 비, 눈, 바람을 직접 바꿔 보며 날씨를 알아봐요.',players:'1명',rank:false},
+  {shot:'capital',url:HUB+'games/capital-quiz/',subj:'사회',name:'나라 수도 맞추기',title:'나라 수도\n맞추기',desc:'세계 50개 나라의 사진과 국기를 보고 수도를 골라요.',players:'1명',rank:true},
+  {shot:'quiz',url:HUB+'games/triple-quiz-show/',subj:'퀴즈',name:'트리플 퀴즈 쇼',title:'트리플\n퀴즈 쇼',desc:'상식, 연산, 아재개그 세 라운드로 이어지는 퀴즈 쇼예요.',players:'1~2명',rank:true},
+  {shot:'runner',url:HUB+'games/quiz-runner/',subj:'퀴즈',name:'퀴즈 & 점프 런너',title:'퀴즈 &\n점프 런너',desc:'장애물은 점프로 넘고, 퀴즈를 맞히면 더 빨라져요.',players:'1~4명',rank:true},
+  {shot:'brain',url:HUB+'games/brain-dash/',subj:'두뇌',name:'브레인 대시',title:'브레인\n대시',desc:'색깔, 암산, 기억력 게임으로 딱 1분 두뇌를 깨워요.',players:'1명',rank:true},
+  {shot:'block',url:HUB+'games/block-puzzle/',subj:'두뇌',name:'블록 퍼즐 챔피언',title:'블록 퍼즐\n챔피언',desc:'블록을 놓아 가로줄이나 세로줄을 꽉 채우면 지워져요.',players:'1명',rank:true},
+  {shot:'swing',url:HUB+'games/rope-swing/',subj:'액션',name:'휙휙! 로프 스윙',title:'휙휙!\n로프 스윙',desc:'로프를 걸고 흔들흔들 날아서 끝까지 건너가요.',players:'1명',rank:true},
+  {shot:'beat',url:HUB+'games/beat-smash/',subj:'액션',name:'비트스매시 클럽',title:'비트스매시\n클럽',desc:'음악에 맞춰 떨어지는 노트를 딱 맞는 순간에 눌러요.',players:'1명',rank:true},
+  {shot:'core',url:HUB+'games/core-defense/',subj:'액션',name:'택티컬 코어 디펜스',title:'택티컬\n코어 디펜스',desc:'몰려오는 드론을 물리치며 코어를 지키는 슈팅 게임이에요.',players:'1명',rank:true}
 ];
 const esc = s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -265,40 +232,34 @@ const esc = s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt
    슬라이드 만들기: 첫 장(전체 소개) + 게임마다 한 장
    =========================================== */
 const stage = document.getElementById('deckStage'), chrome = document.getElementById('chrome');
-const cover = `<section class="slide cover">
+const cover = `<section class="slide">
   <div class="left">
     <span class="tag rv">초등학생이 AI와 함께 만들었어요</span>
     <h1 class="rv">우리가 만든\n게임 ${GAMES.length}개.</h1>
-    <p class="desc rv">아이디어도, 규칙도 우리가 정했어요. 마음에 드는 게임을 골라 직접 해 보세요!</p>
-    <div class="pills rv"><span class="pill pri">지금 바로 체험하기 →</span><span class="pill">🏆 오늘의 랭킹 도전</span></div>
+    <p class="desc rv">마음에 드는 게임을 골라 직접 해 보세요!</p>
   </div>
-  <div class="panel rv"><div class="wave"></div><span class="ptag">우리 반 게임 모음</span><span class="purl">국어 · 수학 · 과학 · 사회 · 두뇌 · 액션</span>
-    <div class="wall">${GAMES.slice(0,11).map(g=>`<div><img src="shots/${g.shot}.png" alt=""></div>`).join('')}<div class="more">+${GAMES.length-11}<br>더!</div></div>
-  </div>
+  <div class="panel rv"><div class="wall">${GAMES.slice(0,11).map(g=>`<div><img src="shots/${g.shot}.png" alt=""></div>`).join('')}<div class="more">+${GAMES.length-11}<br>더!</div></div></div>
 </section>`;
-const slidesHtml = GAMES.map((g,i)=>`<section class="slide">
+const slidesHtml = GAMES.map(g=>`<section class="slide">
   <div class="left">
-    <span class="tag rv">${esc(g.subj)} <em>·</em> ${esc(g.name)}</span>
-    <h1 class="rv ${g.title.split('\n').some(l=>l.length>6)?'long':''}">${esc(g.title)}</h1>
+    <span class="tag rv">${esc(g.subj)}<em>·</em>${esc(g.players)}${g.rank?'<em>·</em>🏆 랭킹 도전':''}</span>
+    <h1 class="rv">${esc(g.title)}</h1>
     <p class="desc rv">${esc(g.desc)}</p>
-    <div class="pills rv">${g.rank?'<span class="pill pri">🏆 오늘의 랭킹에 도전</span>':'<span class="pill pri">자유롭게 체험</span>'}<span class="pill">👤 ${esc(g.players)}</span></div>
   </div>
-  <div class="panel rv"><div class="wave"></div><span class="ptag">게임 화면 · ${esc(g.name)}</span><span class="purl">${String(i+1).padStart(2,'0')} / ${GAMES.length}</span>
-    <div class="shot"><img src="shots/${g.shot}.png" alt="${esc(g.name)} 화면"></div>
-  </div>
+  <div class="panel rv"><div class="shot"><img src="shots/${g.shot}.png" alt="${esc(g.name)} 화면"></div></div>
 </section>`).join('');
 chrome.insertAdjacentHTML('beforebegin',cover+slidesHtml);
 
 /* ===========================================
    QR 코드: 장마다 하나씩 미리 만들어 두고, 슬라이드가 바뀌면 바꿔 보여 줘요
    =========================================== */
-const QR_URLS = [HUB,...GAMES.map(g=>g.url)], QR_NAMES = ['게임 모음 전체 보기',...GAMES.map(g=>g.name)];
+const QR_URLS = [HUB,...GAMES.map(g=>g.url)];
 const qrBox = document.getElementById('qrBox');
 QR_URLS.forEach(u=>{
   const d = document.createElement('div'); d.className = 'code'; qrBox.appendChild(d);
   try{ new QRCode(d,{text:u,width:432,height:432,colorDark:'#111827',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.L}); }catch(e){}   // 인터넷이 없으면 빈 칸으로 남아요
 });
-function showQR(i){ [...qrBox.children].forEach((c,k)=>c.classList.toggle('on',k===i)); document.getElementById('qrName').textContent = QR_NAMES[i]; }
+function showQR(i){ [...qrBox.children].forEach((c,k)=>c.classList.toggle('on',k===i)); }
 
 /* ===========================================
    슬라이드 조종: 10초마다 자동으로 다음 장, 끝나면 처음으로
@@ -307,11 +268,9 @@ function showQR(i){ [...qrBox.children].forEach((c,k)=>c.classList.toggle('on',k
 class SlidePresentation{
   constructor(){
     this.slides = [...document.querySelectorAll('.slide')];
-    this.names = ['우리가 만든 게임',...GAMES.map(g=>g.name)];
     this.cur = 0; this.paused = false; this.timer = null;
     this.autoMs = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--auto-ms'))||10000;
-    document.getElementById('dots').innerHTML = this.slides.map(()=>'<div class="dot"><i></i></div>').join('');
-    this.dots = [...document.querySelectorAll('.dot')];
+    this.bar = document.getElementById('bar');
     this.setupStageScale(); this.setupKeyboardNav(); this.setupTouchNav();
     this.showSlide(0);
   }
@@ -347,12 +306,7 @@ class SlidePresentation{
   showSlide(i){
     this.cur = i;
     this.slides.forEach((s,k)=>{ s.classList.toggle('active',k===i); s.classList.toggle('visible',k===i); });
-    this.dots.forEach((d,k)=>{
-      d.classList.toggle('done',k<i); d.classList.remove('cur');
-      if(k===i){ void d.offsetWidth; d.classList.add('cur'); }      // 진행 막대를 처음부터 다시 채워요
-    });
-    document.getElementById('counter').innerHTML = `<b>${String(i+1).padStart(2,'0')}</b> / ${String(this.slides.length).padStart(2,'0')}`;
-    document.getElementById('nextName').textContent = this.names[(i+1)%this.slides.length]+' →';
+    this.bar.classList.remove('run'); void this.bar.offsetWidth; this.bar.classList.add('run');   // 진행 막대를 처음부터 다시 채워요
     showQR(i);
     clearTimeout(this.timer);
     if(!this.paused) this.timer = setTimeout(()=>this.next(),this.autoMs);
