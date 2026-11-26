@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>청주소로초등학교 디지털마스터 · 우리가 만든 게임 소개</title>
+<title>청주소로초등학교 디지털마스터 · 우리가 만든 앱·게임 소개</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -178,10 +178,10 @@ h1.one{font-size:150px;line-height:1.1}
 .panel{position:absolute;left:950px;top:270px;width:860px;height:700px;border-radius:36px;background:var(--ink);padding:22px;box-shadow:0 30px 60px -24px rgba(27,36,68,.35)}
 .shot{width:100%;height:100%;border-radius:18px;overflow:hidden;background:#e9e6dc;box-shadow:0 0 0 2px rgba(255,255,255,.16)}
 .shot img{width:100%;height:100%;object-fit:cover;object-position:50% 0;display:block}
-.wall{width:100%;height:100%;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(3,1fr);gap:12px}
+.wall{width:100%;height:100%;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,1fr);gap:10px}   /* 5×5 = 화면 24장 + 연두 칸 1개 */
 .wall div{border-radius:12px;background:#fff;overflow:hidden;box-shadow:0 0 0 2px rgba(255,255,255,.16)}
 .wall img{width:100%;height:100%;object-fit:cover;object-position:50% 0;display:block}
-.wall .more{background:var(--lime);display:grid;place-items:center;font-size:44px;font-weight:900;line-height:1.2;text-align:center;box-shadow:none}
+.wall .more{background:var(--lime);display:grid;place-items:center;font-size:38px;font-weight:900;line-height:1.2;text-align:center;box-shadow:none}
 
 /* ===========================================
    등장 효과: 글은 살짝 올라오고, 게임 화면은 제자리에서 떠올라요
@@ -217,15 +217,26 @@ h1.one{font-size:150px;line-height:1.1}
 // 게임 주소 (QR 코드가 가리키는 곳). 부스 모음 사이트의 게임별 주소를 써요.
 const HUB = 'https://ai-festival-booth.vercel.app/';
 const GAMES = [
+  {shot:'mongle',url:'https://mongle-picture-diary.vercel.app/',subj:'창작',name:'몽글몽글 그림일기',title:'몽글몽글\n그림일기',desc:'색연필과 도장으로 그림을 그리고 이야기를 붙여 일기를 완성해요.',players:'1명',rank:false},
+  {shot:'question',url:'https://261122-question-box.vercel.app/',subj:'소통',name:'질문 모아 주세요',title:'질문\n모아 주세요',desc:'궁금한 것을 자유롭게 남기고 친구 질문에 공감을 눌러요.',players:'여럿이 함께',rank:false},
+  {shot:'stairs',url:'https://2026-11-23-infinite-stairs-tilt.vercel.app/',subj:'액션',name:'무한의 계단',title:'무한의\n계단',desc:'휴대폰이나 태블릿을 좌우로 기울여 계단을 끝없이 올라요.',players:'1명',rank:false},
   {shot:'spacing',url:HUB+'games/spacing-champion/',subj:'국어',name:'띄어쓰기 1등은 누구?',title:'띄어쓰기\n1등은 누구?',desc:'글자 사이를 눌러 알맞게 띄어 써요. 최대 4명이 동시에 겨뤄요.',players:'1~4명',rank:true},
   {shot:'fight',url:HUB+'games/math-fighter/',subj:'수학',name:'수학격투',title:'수학격투',desc:'곱셈 문제를 풀어 필살기를 날리는 격투 게임이에요.',players:'1~2명',rank:true},
   {shot:'gugudan',url:'https://261123-gugudan-guardians.vercel.app/',subj:'수학',name:'구구단 가디언즈',title:'구구단\n가디언즈',desc:'구구단을 맞혀 탑을 세우고 몰려오는 적을 막아요.',players:'1명',rank:true},
   {shot:'space',url:HUB+'games/space-conqueror/',subj:'과학',name:'우주정복자',title:'우주정복자',desc:'태양계 여덟 행성을 찾아가 퀴즈를 풀고 정복해요.',players:'1명',rank:true},
   {shot:'weather',url:HUB+'games/weather-simulator/',subj:'과학',name:'꼬마 기상청장',title:'꼬마\n기상청장',desc:'해, 비, 눈, 바람을 직접 바꿔 보며 날씨를 알아봐요.',players:'1명',rank:false},
+  {shot:'spelling',url:HUB+'games/spelling-sniper/',subj:'국어',name:'맞춤법 공부 (스나이퍼)',title:'맞춤법 공부\n스나이퍼',desc:'문장에 어울리는 올바른 맞춤법을 조준해서 쏘아 맞혀요.',players:'1명',rank:true},
+  {shot:'korean',url:HUB+'games/korean-master/',subj:'국어',name:'우리아이 국어 만점',title:'우리아이\n국어 만점',desc:'한글 따라쓰기, 초성 퀴즈, 바른 우리말 바꾸기를 차례로 배워요.',players:'1명',rank:true},
+  {shot:'cuboid',url:HUB+'games/cuboid-pop/',subj:'수학',name:'직육면체 겨냥도 터트리기',title:'직육면체\n겨냥도\n터트리기',desc:'내려오는 도형 중에서 알맞은 겨냥도만 골라 터트려요.',players:'1~4명',rank:true},
+  {shot:'mathquiz',url:HUB+'games/math-quiz/',subj:'수학',name:'수학 문제 맞추기',title:'수학 문제\n맞추기',desc:'난이도와 학년을 고르면 수학 문제 5개가 나와요.',players:'1명',rank:false},
+  {shot:'team',url:HUB+'games/team-games/',subj:'소통',name:'모둠 게임 앱',title:'모둠\n게임 앱',desc:'밸런스 게임과 퀴즈를 모둠 친구들과 즐기고 벌칙도 뽑아요.',players:'여럿이 함께',rank:false},
+  {shot:'rules',url:HUB+'games/class-rules/',subj:'소통',name:'학급 규칙 정하기',title:'학급 규칙\n정하기',desc:'친구들의 의견을 모아 룰렛과 캡슐 뽑기로 우리 반 규칙을 정해요.',players:'여럿이 함께',rank:false},
+  {shot:'lunch',url:HUB+'games/school-lunch/',subj:'생활',name:'오늘의 급식',title:'오늘의\n급식',desc:'우리 학교를 검색하면 오늘 급식을 귀여운 급식판에 담아 보여 줘요.',players:'1명',rank:false},
   {shot:'capital',url:HUB+'games/capital-quiz/',subj:'사회',name:'나라 수도 맞추기',title:'나라 수도\n맞추기',desc:'세계 50개 나라의 사진과 국기를 보고 수도를 골라요.',players:'1명',rank:true},
   {shot:'quiz',url:HUB+'games/triple-quiz-show/',subj:'퀴즈',name:'트리플 퀴즈 쇼',title:'트리플\n퀴즈 쇼',desc:'상식, 연산, 아재개그 세 라운드로 이어지는 퀴즈 쇼예요.',players:'1~2명',rank:true},
   {shot:'runner',url:HUB+'games/quiz-runner/',subj:'퀴즈',name:'퀴즈 & 점프 런너',title:'퀴즈 &\n점프 런너',desc:'장애물은 점프로 넘고, 퀴즈를 맞히면 더 빨라져요.',players:'1~4명',rank:true},
   {shot:'brain',url:HUB+'games/brain-dash/',subj:'두뇌',name:'브레인 대시',title:'브레인\n대시',desc:'색깔, 암산, 기억력 게임으로 딱 1분 두뇌를 깨워요.',players:'1명',rank:true},
+  {shot:'exam',url:HUB+'games/exam-proctor/',subj:'두뇌',name:'부정행위 하는 학생 찾기',title:'부정행위 하는\n학생 찾기',desc:'감독관이 되어 교실을 돌며 몰래 부정행위 하는 학생을 잡아요.',players:'1명',rank:true},
   {shot:'block',url:HUB+'games/block-puzzle/',subj:'두뇌',name:'블록 퍼즐 챔피언',title:'블록 퍼즐\n챔피언',desc:'블록을 놓아 가로줄이나 세로줄을 꽉 채우면 지워져요.',players:'1명',rank:true},
   {shot:'swing',url:HUB+'games/rope-swing/',subj:'액션',name:'휙휙! 로프 스윙',title:'휙휙!\n로프 스윙',desc:'로프를 걸고 흔들흔들 날아서 끝까지 건너가요.',players:'1명',rank:true},
   {shot:'beat',url:HUB+'games/beat-smash/',subj:'액션',name:'비트스매시 클럽',title:'비트스매시\n클럽',desc:'음악에 맞춰 떨어지는 노트를 딱 맞는 순간에 눌러요.',players:'1명',rank:true},
@@ -240,10 +251,10 @@ const stage = document.getElementById('deckStage'), chromeEl = document.getEleme
 const cover = `<section class="slide">
   <div class="left">
     <span class="tag rv">초등학생이 AI와 함께 만들었어요</span>
-    <h1 class="rv">우리가 만든\n게임 ${GAMES.length}개.</h1>
-    <p class="desc rv">마음에 드는 게임을 골라 직접 해 보세요!</p>
+    <h1 class="rv">우리가 만든\n앱·게임 ${GAMES.length}개.</h1>
+    <p class="desc rv">마음에 드는 것을 골라 직접 해 보세요!</p>
   </div>
-  <div class="panel rv"><div class="wall">${GAMES.slice(0,11).map(g=>`<div><img src="shots/${g.shot}.png" alt=""></div>`).join('')}<div class="more">+${GAMES.length-11}<br>더!</div></div></div>
+  <div class="panel rv"><div class="wall">${GAMES.map(g=>`<div><img src="shots/${g.shot}.png" alt=""></div>`).join('')}<div class="more">모두<br>${GAMES.length}개</div></div></div>
 </section>`;
 const slidesHtml = GAMES.map(g=>`<section class="slide">
   <div class="left">
@@ -254,6 +265,18 @@ const slidesHtml = GAMES.map(g=>`<section class="slide">
   <div class="panel rv"><div class="shot"><img src="shots/${g.shot}.png" alt="${esc(g.name)} 화면"></div></div>
 </section>`).join('');
 chromeEl.insertAdjacentHTML('beforebegin',cover+slidesHtml);
+// 제목이 길어 저절로 줄이 더 나뉘거나 글 칸 아래쪽(y 950)을 넘으면, 맞을 때까지 글자를 조금씩 줄여요
+function fitTitles(){
+  document.querySelectorAll('.slide .left').forEach(box=>{
+    const h = box.querySelector('h1'), want = h.textContent.split('\n').length;
+    h.style.fontSize = '';
+    let size = parseFloat(getComputedStyle(h).fontSize);
+    const lines = ()=>Math.round(h.offsetHeight/parseFloat(getComputedStyle(h).lineHeight));
+    while(size>72 && (lines()>want || box.offsetTop+box.offsetHeight>950)){ size -= 4; h.style.fontSize = size+'px'; }
+  });
+}
+fitTitles();
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitles);   // 글꼴이 늦게 도착하면 한 번 더 맞춰요
 
 /* ===========================================
    QR 코드: 장마다 하나씩 미리 만들어 두고, 슬라이드가 바뀌면 바꿔 보여 줘요
