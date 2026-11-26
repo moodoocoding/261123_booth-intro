@@ -236,7 +236,7 @@ const esc = s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt
 /* ===========================================
    슬라이드 만들기: 첫 장(전체 소개) + 게임마다 한 장
    =========================================== */
-const stage = document.getElementById('deckStage'), chrome = document.getElementById('chrome');
+const stage = document.getElementById('deckStage'), chromeEl = document.getElementById('chrome');
 const cover = `<section class="slide">
   <div class="left">
     <span class="tag rv">초등학생이 AI와 함께 만들었어요</span>
@@ -253,7 +253,7 @@ const slidesHtml = GAMES.map(g=>`<section class="slide">
   </div>
   <div class="panel rv"><div class="shot"><img src="shots/${g.shot}.png" alt="${esc(g.name)} 화면"></div></div>
 </section>`).join('');
-chrome.insertAdjacentHTML('beforebegin',cover+slidesHtml);
+chromeEl.insertAdjacentHTML('beforebegin',cover+slidesHtml);
 
 /* ===========================================
    QR 코드: 장마다 하나씩 미리 만들어 두고, 슬라이드가 바뀌면 바꿔 보여 줘요
