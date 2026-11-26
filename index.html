@@ -193,6 +193,12 @@ h1.one{font-size:150px;line-height:1.1}
 .slide.visible .rv:nth-child(3){transition-delay:.16s}
 .panel.rv{transform:scale(.985);transition-duration:.7s}
 .slide.visible .panel.rv{transition-delay:.1s}
+
+/* ----- 전체 화면 버튼: 오른쪽 아래. 마우스를 움직이거나 화면을 건드리면 잠깐 나타났다 사라져요 (F 키로도 돼요) ----- */
+.fs-btn{position:fixed;right:18px;bottom:18px;z-index:1000;border:0;border-radius:999px;padding:12px 20px;font:700 16px var(--font);color:#fff;background:rgba(27,36,68,.82);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.fs-btn.show{opacity:1;pointer-events:auto}
+.fs-btn:hover,.fs-btn:focus-visible{background:var(--blue)}
+@media print{.fs-btn{display:none}}
 </style>
 </head>
 <body>
@@ -206,6 +212,7 @@ h1.one{font-size:150px;line-height:1.1}
     </div>
   </main>
 </div>
+<button type="button" class="fs-btn" id="fsBtn">⛶ 전체 화면</button>
 
 <script>
 /* ===========================================
@@ -322,8 +329,8 @@ class SlidePresentation{
   setupTouchNav(){
     let x0 = null;
     addEventListener('touchstart',e=>{ x0 = e.touches[0].clientX; },{passive:true});
-    addEventListener('touchend',e=>{ if(x0===null) return; const dx = e.changedTouches[0].clientX-x0; x0 = null; if(Math.abs(dx)>50) dx<0 ? this.next() : this.prev(); else this.next(); });
-    addEventListener('click',()=>{ if(!('ontouchstart' in window)) this.next(); });
+    addEventListener('touchend',e=>{ if(x0===null) return; if(e.target.closest('.fs-btn')){ x0 = null; return; } const dx = e.changedTouches[0].clientX-x0; x0 = null; if(Math.abs(dx)>50) dx<0 ? this.next() : this.prev(); else this.next(); });
+    addEventListener('click',e=>{ if(e.target.closest('.fs-btn')) return; if(!('ontouchstart' in window)) this.next(); });
   }
   next(){ this.showSlide((this.cur+1)%this.slides.length); }
   prev(){ this.showSlide((this.cur-1+this.slides.length)%this.slides.length); }
@@ -341,6 +348,25 @@ class SlidePresentation{
   }
 }
 const deck = new SlidePresentation();
+
+/* ===========================================
+   전체 화면: 오른쪽 아래 버튼이나 F 키로 켜고 꺼요 (Esc 로도 꺼져요)
+   =========================================== */
+const fsBtn = document.getElementById('fsBtn'), root = document.documentElement;
+const fsOn = ()=>!!(document.fullscreenElement||document.webkitFullscreenElement);
+function toggleFullscreen(){
+  if(fsOn()) (document.exitFullscreen||document.webkitExitFullscreen).call(document);
+  else{ const req = root.requestFullscreen||root.webkitRequestFullscreen; if(req){ const r = req.call(root); if(r&&r.catch) r.catch(()=>{}); } }
+}
+if(root.requestFullscreen||root.webkitRequestFullscreen){
+  let hideT = null;
+  const peek = ()=>{ fsBtn.classList.add('show'); clearTimeout(hideT); hideT = setTimeout(()=>fsBtn.classList.remove('show'),3000); };
+  fsBtn.addEventListener('click',()=>{ toggleFullscreen(); fsBtn.blur(); });
+  addEventListener('mousemove',peek); addEventListener('touchstart',peek,{passive:true});
+  addEventListener('keydown',e=>{ if((e.key==='f'||e.key==='F'||e.key==='ㄹ')&&!e.ctrlKey&&!e.metaKey&&!e.altKey){ e.preventDefault(); toggleFullscreen(); } });
+  ['fullscreenchange','webkitfullscreenchange'].forEach(n=>document.addEventListener(n,()=>{ fsBtn.textContent = fsOn() ? '✕ 전체 화면 끝내기' : '⛶ 전체 화면'; }));
+  peek();
+}
 // 주소 뒤에 ?s=3 을 붙이면 3번째 장부터, &pause=1 을 붙이면 멈춘 채로 열려요 (점검용)
 const qs = new URLSearchParams(location.search);
 if(qs.get('pause')) deck.togglePause();
